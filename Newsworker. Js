@@ -1,0 +1,29 @@
+const fetch = require("node-fetch");
+const API_URL = "http://localhost:3000/api/news";
+
+async function fetchNews() {
+  try {
+    const res = await fetch("https://cryptopanic.com/api/v1/posts/?auth_token=demo&public=true");
+    const data = await res.json();
+    if (!data.results) return;
+
+    const latestNews = data.results.slice(0, 5).map(n => ({
+      title: n.title,
+      url: n.url,
+      published: n.published_at,
+      source: n.source.title
+    }));
+
+    await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(latestNews),
+    });
+    console.log("✅ News updated");
+  } catch (e) {
+    console.error("❌ Failed to fetch news:", e.message);
+  }
+}
+
+setInterval(fetchNews, 3600000);
+fetchNews();
