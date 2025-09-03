@@ -1,0 +1,16 @@
+{
+  "name": "shahzad-signals",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "worker": "node worker.js",
+    "news": "node newsWorker.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "node-fetch": "^2.6.7",
+    "ws": "^8.13.0",
+    "redis": "^4.6.7"
+  }
+}
