@@ -1,0 +1,52 @@
+const express = require("express");
+const fetch = require("node-fetch");
+const WebSocket = require("ws");
+const { createClient } = require("redis");
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.json());
+
+// Optional Redis
+let redis;
+if (process.env.REDIS_URL) {
+  redis = createClient({ url: process.env.REDIS_URL });
+  redis.on("error", (err) => console.error("Redis Error:", err));
+  redis.connect();
+}
+
+// Memory store
+let signals = [];
+let news = [];
+
+// Routes
+app.get("/", (req, res) => {
+  res.send("🚀 Shahzad Signals Backend Running!");
+});
+
+app.post("/api/top-signals", (req, res) => {
+  const { coin, score, confidence, timestamp } = req.body;
+  signals.push({ coin, score, confidence, timestamp });
+  if (signals.length > 50) signals.shift();
+  res.json({ message: "Signal stored" });
+});
+
+app.get("/api/top-signals", (req, res) => res.json(signals));
+
+app.post("/api/news", (req, res) => {
+  news = req.body;
+  res.json({ message: "News updated", count: news.length });
+});
+
+app.get("/api/news", (req, res) => res.json(news));
+
+// WebSocket
+const server = app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});
+
+const wss = new WebSocket.Server({ server });
+wss.on("connection", (ws) => {
+  ws.send("📡 Connected to Shahzad Signals WebSocket!");
+});
